@@ -30,7 +30,9 @@ env:
 jobs:
   build:
     name: 编译并打包未签名 IPA
-    runs-on: macos-15
+    # arm64 的 macos-15 在免费队列里经常排不到机器（capacity constraints），
+    # 改用 Intel 机器：编译产物仍是 arm64（ARCHS=arm64），只是宿主架构不同。
+    runs-on: macos-15-intel
     timeout-minutes: 45
 
     steps:
