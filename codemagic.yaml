@@ -1,0 +1,61 @@
+# Codemagic 配置：在没有 GitHub、或 GitHub 访问不了时，用 Codemagic 的 macOS 机器出未签名 IPA。
+# 用法见 Docs/手把手-从零装到iPhone.md 的「备用路线」一节。
+# 只需要一个 public 仓库（Gitee / GitLab / GitHub 都行），Codemagic 免费额度 500 分钟/月。
+
+workflows:
+  ios-unsigned-ipa:
+    name: iOS 未签名 IPA
+    instance_type: mac_mini_m2
+    max_build_duration: 40
+    environment:
+      xcode: latest
+      vars:
+        SCHEME: MoodReader
+        PROJECT: MoodReader.xcodeproj
+
+    scripts:
+      - name: 检查工具链
+        script: |
+          set -e
+          xcodebuild -version
+          xcodebuild -list -project "$PROJECT"
+
+      - name: 编译（真机 Release，不签名）
+        script: |
+          set -e
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build
+
+      - name: 打包成 IPA
+        script: |
+          set -e
+          APP_PATH="build/Build/Products/Release-iphoneos/MoodReader.app"
+          test -d "$APP_PATH"
+          rm -rf Payload MoodReader-unsigned.ipa
+          mkdir -p Payload
+          ditto "$APP_PATH" "Payload/MoodReader.app"
+          /usr/bin/zip -qry MoodReader-unsigned.ipa Payload
+          ls -lh MoodReader-unsigned.ipa
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "Payload/MoodReader.app/Info.plist" || true
+
+    artifacts:
+      - MoodReader-unsigned.ipa
+      - build/**/Build/Products/Release-iphoneos/*.app
+
+    publishing:
+      email:
+        recipients:
+          - 275576756@qq.com
+        notify:
+          success: true
+          failure: true

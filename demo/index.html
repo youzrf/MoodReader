@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#f7f1e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="声笺">
+<title>声笺 · 有情绪的朗读</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4.8A1.8 1.8 0 018.8 3h6.4A1.8 1.8 0 0117 4.8V21l-5-3.2L7 21V4.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+      <symbol id="i-bookmark-fill" viewBox="0 0 24 24"><path d="M7 4.8A1.8 1.8 0 018.8 3h6.4A1.8 1.8 0 0117 4.8V21l-5-3.2L7 21V4.8z" fill="currentColor"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.6v12.8L19 12 8 5.6z" fill="currentColor"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/></symbol>
+      <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 111.9 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M4 8.5V13h4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-prev" viewBox="0 0 24 24"><path d="M7 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6.2v11.6L9.4 12 19 6.2z" fill="currentColor"/></symbol>
+      <symbol id="i-next" viewBox="0 0 24 24"><path d="M17 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 6.2v11.6L14.6 12 5 6.2z" fill="currentColor"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 8h9M17 8h3M4 16h3M11 16h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="15" cy="8" r="2.1" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="16" r="2.1" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.7 4.8L18.5 9.5l-4.8 1.7L12 16l-1.7-4.8L5.5 9.5l4.8-1.7L12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor"/></symbol>
+      <symbol id="i-waves" viewBox="0 0 24 24"><path d="M3 9c2 0 2-1.4 4-1.4S9 9 11 9s2-1.4 4-1.4S17 9 19 9M3 14c2 0 2-1.4 4-1.4S9 14 11 14s2-1.4 4-1.4S17 14 19 14M3 19c2 0 2-1.4 4-1.4S9 19 11 19s2-1.4 4-1.4S17 19 19 19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20a8 8 0 01-5.7-2.4C4 15.4 3 13.7 3 11.7 3 8.9 5 7 7.6 7c1.6 0 3 .8 4.4 2.4C13.4 7.8 14.8 7 16.4 7 19 7 21 8.9 21 11.7c0 2-1 3.7-3.3 5.9A8 8 0 0112 20z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15.5a4 4 0 01.5-8 5.3 5.3 0 0110.2 1.2A3.4 3.4 0 0117.5 15.5H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 18.5l-.8 2M12 18.5l-.8 2M16 18.5l-.8 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 016.5 3H19v16H6.5A2.5 2.5 0 004 21.5v-16z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 18.5A2.5 2.5 0 016.5 16H19" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 2L5 13.2h5.6L10 22l8.8-11.6h-5.6L13.5 2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+      <symbol id="i-question" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.4 9.2a2.7 2.7 0 115 1.5c-.8 1-2.4 1.2-2.4 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1" fill="currentColor"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.3A8.2 8.2 0 019.7 4 8.4 8.4 0 1020 14.3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.8h6V7M6.5 7l.8 13h9.4l.8-13M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-bubble" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-11.2 6.6L4 20l1.6-4.4A7.5 7.5 0 1120 11.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 10.5h7M8.5 13.5h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="i-quote" viewBox="0 0 24 24"><path d="M9 7H5v5h4v5H5M19 7h-4v5h4v5h-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 10.5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ================= Library ================= -->
+  <section class="screen" id="libraryScreen">
+    <div class="library-scroll" id="libraryScroll">
+      <header class="lib-head">
+        <div>
+          <p class="eyebrow" id="greeting">晚上好</p>
+          <h1 class="brand">声笺</h1>
+        </div>
+        <button class="add-btn" id="newBookBtn" aria-label="新建朗读">
+          <svg><use href="#i-plus"/></svg>
+        </button>
+      </header>
+
+      <div class="tagline">
+        <span>让文字，有情绪地响起来</span>
+        <span class="rule"></span>
+        <span class="date" id="today"></span>
+      </div>
+
+      <div id="continueHost"></div>
+
+      <div class="section-head">
+        <h2>我的书架</h2>
+        <span class="count" id="bookCount">0</span>
+        <span class="hint">点击开始朗读</span>
+      </div>
+      <div class="book-grid" id="bookGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= Reader ================= -->
+  <section class="screen" id="readerScreen" hidden>
+    <header class="reader-head">
+      <button class="icon-btn" id="backBtn" aria-label="返回书架">
+        <svg><use href="#i-back"/></svg>
+      </button>
+      <div class="reader-title">
+        <h2 id="readerTitle">深夜便利店</h2>
+        <p id="readerMeta">声笺 · 短篇</p>
+      </div>
+      <button class="icon-btn" id="readerBookmarkBtn" aria-label="添加书签">
+        <svg><use id="readerBookmarkIcon" href="#i-bookmark"/></svg>
+      </button>
+      <button class="icon-btn" id="readerMenuBtn" aria-label="更多">
+        <svg><use href="#i-more"/></svg>
+      </button>
+    </header>
+
+    <div class="reader-progress"><i id="readerProgress"></i></div>
+
+    <div class="reader-scroll" id="readerScroll">
+      <article class="reader-text" id="readerText"></article>
+    </div>
+
+    <div class="player" id="player">
+      <div class="player-progress"><i id="playerProgress"></i></div>
+      <div class="player-top">
+        <div class="player-top-main">
+          <div class="player-tags">
+            <span class="chip sage" id="emotionChip">温柔</span>
+            <span class="player-count" id="playerCount">第 1 / 1 句</span>
+          </div>
+          <p class="snippet" id="snippet">轻点正文中的任意一句，从这里开始听。</p>
+        </div>
+        <button class="bookmark-btn" id="playerBookmarkBtn" aria-label="添加书签">
+          <svg><use id="playerBookmarkIcon" href="#i-bookmark"/></svg>
+        </button>
+      </div>
+
+      <div class="player-controls">
+        <div class="left">
+          <button class="speed-btn" id="speedBtn">1.0×</button>
+        </div>
+        <div class="transport">
+          <button class="transport-btn" id="prevBtn" aria-label="上一句"><svg><use href="#i-prev"/></svg></button>
+          <button class="play-btn" id="playBtn" aria-label="播放"><svg id="playIcon"><use href="#i-play"/></svg></button>
+          <button class="transport-btn" id="nextBtn" aria-label="下一句"><svg><use href="#i-next"/></svg></button>
+        </div>
+        <div class="right">
+          <button class="emotion-btn" id="emotionBtn"><svg style="width:11px;height:11px"><use id="emotionIcon" href="#i-heart"/></svg><span id="emotionLabel">智能</span></button>
+          <button class="settings-mini" id="settingsBtn" aria-label="朗读设置"><svg><use href="#i-settings"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Sheets ================= -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+
+  <section class="sheet" id="bookmarksSheet" aria-hidden="true">
+    <div class="sheet-head">
+      <h3>书签</h3>
+      <span class="sheet-sub" id="bookmarksSub"></span>
+      <button class="done" data-close-sheet>完成</button>
+    </div>
+    <div class="sheet-body" id="bookmarksBody"></div>
+  </section>
+
+  <section class="sheet" id="settingsSheet" aria-hidden="true">
+    <div class="sheet-head">
+      <h3>朗读设置</h3>
+      <button class="done" data-close-sheet>完成</button>
+    </div>
+    <div class="sheet-body">
+      <div class="setting-title"><strong>声音</strong><span>中文语音</span></div>
+      <div class="setting-card" id="voiceList"></div>
+      <p class="voice-hint">
+        <svg><use href="#i-info"/></svg>
+        <span>这里列出当前设备可用的中文声音。iPhone 可在「设置 &gt; 辅助功能 &gt; 朗读内容 &gt; 声音」下载增强语音。</span>
+      </p>
+
+      <div class="setting-title"><strong>语速</strong><span id="speedValue">1.0×</span></div>
+      <div class="setting-card">
+        <div class="slider-wrap">
+          <div class="slider-top"><span>慢一点</span><strong id="speedValue2">1.0×</strong><span>快一点</span></div>
+          <input type="range" id="speedRange" min="0.7" max="1.4" step="0.05" value="1">
+          <div class="slider-labels"><span>0.7×</span><span>1.4×</span></div>
+        </div>
+      </div>
+
+      <div class="setting-title"><strong>语气</strong><span>整篇基调</span></div>
+      <div class="emotion-grid" id="emotionGrid"></div>
+      <p class="emotion-desc" id="emotionDesc"></p>
+
+      <div class="setting-title"><strong>朗读</strong><span></span></div>
+      <div class="setting-card">
+        <div class="toggle-row">
+          <div class="txt"><strong>自动滚动</strong><span>朗读到下一句时，把当前句带到视野里</span></div>
+          <button class="switch on" id="autoScrollSwitch" aria-label="自动滚动"></button>
+        </div>
+      </div>
+      <p class="voice-hint">
+        <svg><use href="#i-info"/></svg>
+        <span>网页版使用浏览器自带的语音合成，断句、情绪、暂停和书签都可以体验；原生 iOS 版使用系统语音，并可继续接入云端神经语音。</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="sheet" id="menuSheet" aria-hidden="true">
+    <div class="sheet-head"><h3>更多</h3><button class="done" data-close-sheet>完成</button></div>
+    <div class="sheet-body">
+      <div class="setting-card" style="margin-bottom:10px">
+        <button class="voice-row" id="menuBookmarks">
+          <svg style="width:16px;height:16px"><use href="#i-bookmark"/></svg>
+          <span class="voice-name">书签</span>
+          <span class="voice-check" style="border:0"></span>
+        </button>
+        <button class="voice-row" id="menuSettings">
+          <svg style="width:16px;height:16px"><use href="#i-settings"/></svg>
+          <span class="voice-name">朗读设置</span>
+          <span class="voice-check" style="border:0"></span>
+        </button>
+        <button class="voice-row" id="menuRepeat">
+          <svg style="width:16px;height:16px"><use href="#i-replay"/></svg>
+          <span class="voice-name">重读这一句</span>
+          <span class="voice-check" style="border:0"></span>
+        </button>
+        <button class="voice-row" id="menuRestart">
+          <svg style="width:16px;height:16px"><use href="#i-back"/></svg>
+          <span class="voice-name">回到开头</span>
+          <span class="voice-check" style="border:0"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="newSheet" aria-hidden="true">
+    <div class="sheet-head"><h3>新建朗读</h3><button class="done" data-close-sheet>取消</button></div>
+    <div class="sheet-body">
+      <p style="font-family:var(--serif);font-size:22px;font-weight:700;margin:2px 2px 5px">把想听的字，放进来。</p>
+      <p style="font-size:11px;color:var(--ink-soft);line-height:1.6;margin:0 2px 16px">会自动断句，长句在逗号处换气；每一句都会有合适的语气。</p>
+      <div class="field"><label>标题（可留空）</label><input id="newTitle" placeholder="例如：深夜便利店" autocomplete="off"></div>
+      <div class="field"><label>作者 / 来源（可选）</label><input id="newAuthor" placeholder="例如：声笺 · 短篇" autocomplete="off"></div>
+      <div class="field"><label>正文</label><textarea id="newText" placeholder="把文章粘贴到这里…"></textarea></div>
+      <div class="new-actions">
+        <button class="btn-ghost" data-close-sheet>取消</button>
+        <button class="btn-primary" id="createBookBtn">开始朗读</button>
+      </div>
+      <p class="file-hint">网页版支持粘贴文本。原生 iOS 版还支持导入 txt 文件。</p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastText"></span></div>
+</div>
+
+<script src="segmenter.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

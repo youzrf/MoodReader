@@ -1,0 +1,138 @@
+name: iOS Build
+
+# 在 GitHub 的 macOS 机器上把这份 SwiftUI 工程编译成可安装的 IPA。
+# 你不需要 Mac，只需要把仓库推到 GitHub，然后在 Actions 页面手动跑一次或直接 push。
+# 详细说明见 Docs/Windows11-测试与装机.md
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      build_simulator_app:
+        description: 同时产出模拟器 .app（给 Appetize 在浏览器里试用，会多花约 3-5 分钟）
+        type: boolean
+        default: false
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: MoodReader.xcodeproj
+  SCHEME: MoodReader
+  APP_NAME: MoodReader
+
+jobs:
+  build:
+    name: 编译并打包未签名 IPA
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 环境与工具链
+        run: |
+          sw_vers
+          xcodebuild -version
+          echo "---- schemes ----"
+          xcodebuild -list -project "$PROJECT"
+
+      - name: 编译（真机 Release，不签名）
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/dd-device" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build 2>&1 | tee "$RUNNER_TEMP/device-build.log"
+
+      - name: 编译失败时把 error 行单独列出来
+        if: failure()
+        run: |
+          echo "==== 编译错误摘要 ===="
+          grep -E "error:" "$RUNNER_TEMP/device-build.log" | head -n 200 || true
+          echo "==== 截图/日志见上方 artifact ===="
+          exit 1
+
+      - name: 组装 IPA（Payload/MoodReader.app）
+        run: |
+          set -euo pipefail
+          APP_PATH="$RUNNER_TEMP/dd-device/Build/Products/Release-iphoneos/$APP_NAME.app"
+          test -d "$APP_PATH"
+          rm -rf Payload "$APP_NAME-unsigned.ipa"
+          mkdir -p Payload
+          ditto "$APP_PATH" "Payload/$APP_NAME.app"
+          /usr/bin/zip -qry "$APP_NAME-unsigned.ipa" Payload
+          echo "---- IPA 内容 ----"
+          /usr/bin/unzip -l "$APP_NAME-unsigned.ipa" | head -n 20
+          echo "---- 版本信息 ----"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "Payload/$APP_NAME.app/Info.plist" || true
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "Payload/$APP_NAME.app/Info.plist" || true
+          /usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "Payload/$APP_NAME.app/Info.plist" || true
+          echo "---- 架构 ----"
+          lipo -info "Payload/$APP_NAME.app/$APP_NAME" || true
+          ls -lh "$APP_NAME-unsigned.ipa"
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoodReader-unsigned-ipa
+          path: MoodReader-unsigned.ipa
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: 上传编译日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ${{ runner.temp }}/device-build.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: 编译模拟器版 .app（可选，给 Appetize 用）
+        if: ${{ inputs.build_simulator_app }}
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd-sim" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee "$RUNNER_TEMP/sim-build.log"
+
+      - name: 打包模拟器 .app
+        if: ${{ inputs.build_simulator_app }}
+        run: |
+          set -euo pipefail
+          APP_PATH="$RUNNER_TEMP/dd-sim/Build/Products/Debug-iphonesimulator/$APP_NAME.app"
+          test -d "$APP_PATH"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$APP_NAME-simulator.app.zip"
+          ls -lh "$APP_NAME-simulator.app.zip"
+
+      - name: 上传模拟器 .app
+        if: ${{ inputs.build_simulator_app }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoodReader-simulator-app
+          path: MoodReader-simulator.app.zip
+          retention-days: 30
+          if-no-files-found: error
